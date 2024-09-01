@@ -5,35 +5,33 @@ from random import randint
 
 
 class Producto:
+    objetos = []
     def __init__(self, nombre, precio, stock):
         self.__nombre = nombre
         self.__stock = stock
         self.__precio = precio
+        Producto.objetos.append(self)
         
     @property
     def nombre(self) -> str:
         return self.__nombre
-    @nombre.setter
-    def nombre(self, nombre):
-        self.__nombre = nombre
 
     @property
     def stock(self) -> int:
         return self.__stock
-    @stock.setter
-    def stock(self, stock):
-        self.__stock = stock
 
     @property
     def precio(self) -> float:
         return self.__precio
-    @precio.setter
-    def precio(self, precio):
-        self.__precio = precio
+
+    @classmethod
+    def consultar_objetos(cls):
+        return cls.objetos
+    
     def __str__(self):
         return f'{self.nombre} | Precio: $ {self.precio:.2f} | Stock: {self.stock}'
 
-class VentaProducto:
+class VentaProducto():
     def __init__(self, producto, cantidad_venta):
         self.__cantidad_venta = cantidad_venta
         
@@ -41,14 +39,14 @@ class VentaProducto:
             print(f'No hay productos disponible. Stock: {producto.stock}')
         else:
             producto.stock -= self.__cantidad_venta
-            Inventário.registro(producto, 'Venta', cantidad_venta)
+            Histórico.registro(producto, 'Venta', cantidad_venta)
 
 class CompraProducto:
     def __init__(self, producto, cantidad_compra):
         producto.stock += cantidad_compra
-        Inventário.registro(producto, 'Compra', cantidad_compra)
+        Histórico.registro(producto, 'Compra', cantidad_compra)
 
-class Inventário():
+class Histórico():
     __histórico = dict()
     __id = 0
     
@@ -71,20 +69,35 @@ class Inventário():
             registros.append(registro)
         return registros
 
-banana = Producto('Banana', 300, 100)
-maca = Producto('Maça', 600, 10)
-uva = Producto('Uva', 1300, 5)
-huevo = Producto('Huevo', 4400, 10)
+def BuscarProducto(prod):
+    produtos = Producto.consultar_objetos()
+    for producto in produtos:
+        print(producto.nombre)
+        if producto.nombre.lower() == prod.lower():
+            return producto
+    else:
+        return False
 
-VentaProducto(banana, 80)
-VentaProducto(huevo, 2)
-VentaProducto(maca, 4)
-CompraProducto(maca, 3)
-CompraProducto(huevo, 15)
-VentaProducto(banana, 13)
+def RegistrarProducto():
+    global lista_productos
+    print('Registrando nuevo producto')
+    print()
+    nombre = input('Nombre del producto: ')
+    precio = float(input('Precio: $ '))
+    stock = int(input('Stock: '))
+    Producto(nombre, precio, stock)
 
-a = Inventário.consultar()
+def MostrarProductos():
+    produtos = Producto.consultar_objetos()
+    for producto in produtos:
+        print(producto)
 
-df = pd.DataFrame(a)
+###  Mostrar listado de productos
+# for producto in lista_productos:
+#     print(producto)
+
+### Generar DataFrame y guardar en excel
+# datos = Histórico.consultar()
+# df = pd.DataFrame(datos)
+# print(df)
 # df.to_excel('base.xlsx')
-print(df.loc[:,'total'].to_string())
